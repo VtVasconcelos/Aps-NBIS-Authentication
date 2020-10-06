@@ -3,31 +3,32 @@ from app import app
 from banco import mysql
 from flask import jsonify
 from flask import flash, request
-
+from nbis import identify
 
 @app.route('/add', methods=['POST'])
 def add_pessoa():
     try:
-        #aqui eu pego o json
+        # aqui eu pego o json
         _json = request.json
-        #pego uma parte do json que no caso é o nome
-        _name = _json['nome']
-        #se nome existe e se a req é POST
-        if(_name and request.method == 'POST'):
-            #eu guardo o comando que o banco de dados vai receber
-            sqlQuery = 'insert into pessoa(nome,digital,nivel_acesso) values(%s,"nenhuma porra","1")'
-            #eu guardo os valores do json que eu peguei
-            bindData = (_name)
-            #crio uma conexao com o banco
+        # pego uma parte do json que no caso é o nome
+        _nome = _json['nome']
+        _digital = _json['digital']
+        _nivel_acesso = _json['nivel_acesso']
+        # se nome existe e se a req é POST
+        if(_nome and request.method == 'POST'):
+            # eu guardo o comando que o banco de dados vai receber
+            sqlQuery = 'insert into pessoa(nome,digital,nivel_acesso) values(%s,%s,%s)'
+            # eu guardo os valores do json que eu peguei
+            bindData = (_nome,_digital,_nivel_acesso)
+            # crio uma conexao com o banco
             conn = mysql.connect()
-            #guardo essa conexao em uma variavel
+            # guardo essa conexao em uma variavel
             cursor = conn.cursor()
-            #executo o comando, passando o comando e os valores
+            # executo o comando, passando o comando e os valores
             cursor.execute(sqlQuery, bindData)
             conn.commit()
 
-
-            #respondo se conseguir
+            # respondo se conseguir
             response = jsonify('Pessoa added')
             response.status_code = 200
             return response
@@ -64,7 +65,6 @@ def searchById(id):
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute('SELECT * from pessoa where id=%s', id)
         rows = cursor.fetchone()
-        response = jsonify(rows)
         if(rows == None):
             message = {
                 'status': 404,
@@ -73,6 +73,10 @@ def searchById(id):
             response = jsonify(message)
             response.status_code = 404
             return response
+        response = jsonify(rows)
+        with open("search.xyt","w") as fxyt:
+            fxyt.write(rows['digital'])
+        print(identify("search.xyt"))
         response.status_code = 200
         return response
     except Exception as e:
@@ -104,17 +108,18 @@ def update():
         else:
             return not_found()
     except Exception as e:
-            print(e)
+        print(e)
     finally:
         cursor.close()
         conn.close()
+
 
 @app.route('/delete/<int:id>', methods=['DELETE'])
 def delete(id):
     try:
         conn = mysql.connect()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM pessoa WHERE id=%s",(id))
+        cursor.execute("DELETE FROM pessoa WHERE id=%s", (id))
         conn.commit()
         response = jsonify("Pessoa aniquilada")
         response.status_code = 200
@@ -124,6 +129,7 @@ def delete(id):
     finally:
         cursor.close()
         conn.close()
+
 
 @app.errorhandler(404)
 def not_found(error=None):
@@ -136,4 +142,5 @@ def not_found(error=None):
     return response
 
 
-app.run()
+if __name__=='__main__':
+    app.run()

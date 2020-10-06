@@ -7,7 +7,7 @@ import attr
 import os.path
 
 def identify(fileName):
-    cmd = "./library/bozorth3 -g ./" + fileName + " ./database/*.xyt"
+    cmd = "./library/bozorth3 -g ./" + fileName + " ./xyt files/*.xyt"
     result = os.popen(cmd).read()
 
     for temp in result.splitlines():
