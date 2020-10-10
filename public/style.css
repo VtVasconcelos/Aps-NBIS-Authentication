@@ -1,0 +1,57 @@
+*{
+    padding: 0px;
+    margin: 0px;
+    list-style: none;
+    box-sizing: content-box;
+}
+.\32 {
+    color:red;
+}
+form{
+    margin: auto;
+    width: fit-content;
+    padding: 50px 0px;
+    display: flex;
+}
+form input{
+    padding: 0px 10px;
+    margin-right: 10px;
+}
+h2{
+    text-align: center;
+}
+.send{
+    display: inline-block;
+    margin: auto;
+}
+table{
+    margin: auto;
+    width: 400px;
+    margin-top: 25px;
+}
+form.register {
+    flex-direction: column;
+}
+form.register input{
+    margin:10px 0px;
+}
+table i:first-child{
+
+}
+table tr {
+    line-height:30px;
+}
+body{
+    background:#f8f8f8 !important;
+}
+table td{
+    padding: 0px 35px;
+}
+table tr{
+    border: solid 1px #e4e4e4!important;
+    border: solid 1px black;
+    background: white!important;
+}
+tbody tr{
+    background: transparent!important;
+}

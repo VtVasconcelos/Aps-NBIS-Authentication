@@ -7,7 +7,7 @@ import attr
 import os.path
 
 def identify(fileName):
-    cmd = "./library/bozorth3 -g ./" + fileName + " ./xyt files/*.xyt"
+    cmd = "./library/bozorth3 -g ./" + fileName + " ./xyt banco/*.xyt"
     result = os.popen(cmd).read()
 
     for temp in result.splitlines():
@@ -16,8 +16,8 @@ def identify(fileName):
 
     return False
 
-def mindtct_from_image(image_path):
-    image_full_path = os.path.abspath(image_path)
+def mindtct_from_image(image,path):
+    image_full_path = os.path.abspath("./fingers/"+image)
     tempdir = tempfile.mkdtemp()
     oroot = os.path.join(tempdir, 'result')
     callMindtct = "./library/mindtct "+ image_full_path +" "+ oroot
@@ -26,7 +26,7 @@ def mindtct_from_image(image_path):
         result = ""
         with open(oroot + '.xyt') as fd:
             result = fd.read()
-        with open("result.xyt","w") as fd:
+        with open(path+"result.xyt","w") as fd:
             fd.write(result)
         return "Sucess"
 

@@ -2,43 +2,49 @@ import pymysql
 from app import app
 from banco import mysql
 from flask import jsonify
-from flask import flash, request
+from flask import flash, request, session
 from nbis import identify
+from nbis import mindtct_from_image
+import flask_login
 
-@app.route('/add', methods=['POST'])
+
+@app.route('/add', methods=['GET', 'POST'])
 def add_pessoa():
     try:
-        # aqui eu pego o json
-        _json = request.json
-        # pego uma parte do json que no caso é o nome
-        _nome = _json['nome']
-        _digital = _json['digital']
-        _nivel_acesso = _json['nivel_acesso']
-        # se nome existe e se a req é POST
-        if(_nome and request.method == 'POST'):
-            # eu guardo o comando que o banco de dados vai receber
-            sqlQuery = 'insert into pessoa(nome,digital,nivel_acesso) values(%s,%s,%s)'
-            # eu guardo os valores do json que eu peguei
-            bindData = (_nome,_digital,_nivel_acesso)
-            # crio uma conexao com o banco
-            conn = mysql.connect()
-            # guardo essa conexao em uma variavel
-            cursor = conn.cursor()
-            # executo o comando, passando o comando e os valores
-            cursor.execute(sqlQuery, bindData)
-            conn.commit()
-
-            # respondo se conseguir
-            response = jsonify('Pessoa added')
-            response.status_code = 200
-            return response
+        if request.method == 'POST':
+            _json = request.json
+            _nome = _json['nome']
+            _digital = _json['digital']
+            _nivel_acesso = _json['nivel_acesso']
+            if(_nome and request.method == 'POST'):
+                response_search = searchByName(_nome)
+                if(response_search.status_code == 404):
+                    sqlQuery = 'insert into pessoa(nome,digital,nivel_acesso) values(%s,%s,%s)'
+                    #_digital = mindtct_from_image(_digital)
+                    bindData = (_nome, _digital, _nivel_acesso)
+                    conn = mysql.connect()
+                    cursor = conn.cursor()
+                    cursor.execute(sqlQuery, bindData)
+                    conn.commit()
+                    response = jsonify('Pessoa added')
+                    response.status_code = 200
+                    return response
+                else:
+                    response = jsonify('Nome já existe')
+                    response.status_code = 404
+                    return response
+            else:
+                return not_found()
         else:
-            return not_found()
+            print(request)
     except Exception as e:
         print(e)
     finally:
-        cursor.close()
-        conn.close()
+        try:
+            cursor.close()
+            conn.close()
+        except Exception as ex:
+            print(ex)
 
 
 @app.route('/search')
@@ -58,6 +64,25 @@ def search():
         conn.close()
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        _json = request.json
+        _nome = _json['nome']
+        _digital = _json['digital']
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute('SELECT * from pessoa where id=%s', _nome)
+        account = cursor.fetchone()
+        if mindtct_from_image(account["digital"],"./banco/") == identify(_digital):
+            session['loggedin'] = True
+            session['id'] = account['id']
+            session['username'] = account['username']
+            return session
+        else:
+            return 'Incorrect username / password !'
+
+
 @app.route('/search/<int:id>')
 def searchById(id):
     try:
@@ -74,13 +99,14 @@ def searchById(id):
             response.status_code = 404
             return response
         response = jsonify(rows)
-        with open("search.xyt","w") as fxyt:
-            fxyt.write(rows['digital'])
-        print(identify("search.xyt"))
+        # with open("digital_busca.xyt", "w") as fxyt:
+        #    fxyt.write(rows['digital'])
+        # identify("digital_busca.xyt")
         response.status_code = 200
         return response
     except Exception as e:
         print(e)
+        return not_found()
     finally:
         cursor.close()
         conn.close()
@@ -109,6 +135,7 @@ def update():
             return not_found()
     except Exception as e:
         print(e)
+        return not_found()
     finally:
         cursor.close()
         conn.close()
@@ -126,6 +153,7 @@ def delete(id):
         return response
     except Exception as ex:
         print(ex)
+        return not_found()
     finally:
         cursor.close()
         conn.close()
@@ -142,5 +170,44 @@ def not_found(error=None):
     return response
 
 
-if __name__=='__main__':
+
+
+
+
+
+
+
+
+
+def searchByName(name):
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute('SELECT * from pessoa where nome=%s', name)
+        rows = cursor.fetchone()
+        if(rows == None):
+            message = {
+                'status': 404,
+                'message': "Not found"
+            }
+            response = jsonify(message)
+            response.status_code = 404
+            return response
+        response = jsonify(rows)
+        # with open("digital_busca.xyt", "w") as fxyt:
+        #    fxyt.write(rows['digital'])
+        # identify("digital_busca.xyt")
+        response.status_code = 200
+        return response
+    except Exception as e:
+        print(e)
+        return not_found()
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
+
+if __name__ == '__main__':
     app.run()
