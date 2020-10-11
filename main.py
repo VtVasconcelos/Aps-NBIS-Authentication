@@ -1,12 +1,17 @@
 import pymysql
 from app import app
+import json
 from banco import mysql
 from flask import jsonify
-from flask import flash, request, session
+from flask import flash, redirect, request, render_template,has_request_context
 from nbis import identify
 from nbis import mindtct_from_image
 import flask_login
 
+
+@app.route('/')
+def render_login(text=""):
+    return render_template("login.html",message=text)
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_pessoa():
@@ -63,25 +68,46 @@ def search():
         cursor.close()
         conn.close()
 
-
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/register')
+def render_register():
+    return render_template("register.html")
+@app.route('/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        _json = request.json
-        _nome = _json['nome']
-        _digital = _json['digital']
+    try:
+        if(has_request_context()):
+            if(request.method == "POST" and request.form['nome'] and request.form['digital']):
+                _nome = request.form['nome']
+                _digital = "./fingers/"+request.form['digital']
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute('SELECT * from pessoa where nome=%s', _nome)
+                account = cursor.fetchone()
+                mindtct_from_image(account["digital"], "./banco/")
+                if identify(mindtct_from_image(_digital, "./")):
+                        if(account['nivel_acesso'] < 3):
+                            return render_login('Boa filho de uma égua, agora se fode ai')
+                        else:
+                            return render_template("users.html")
+                else:
+                    return render_login('Nome de usuário ou digital incorretos')
+    except:
+        return render_login('Nome de usuário ou digital incorretos!')
+
+@app.route('/get-info/<int:nivel_acesso>')
+def getInfos(nivel_acesso):
+    try:
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute('SELECT * from pessoa where id=%s', _nome)
-        account = cursor.fetchone()
-        if mindtct_from_image(account["digital"],"./banco/") == identify(_digital):
-            session['loggedin'] = True
-            session['id'] = account['id']
-            session['username'] = account['username']
-            return session
-        else:
-            return 'Incorrect username / password !'
-
+        cursor.execute('SELECT * from info where nivel_acesso=%s',nivel_acesso)
+        rows = cursor.fetchall()
+        response = jsonify(rows)
+        response.status_code = 200
+        return response
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/search/<int:id>')
 def searchById(id):
@@ -158,6 +184,10 @@ def delete(id):
         cursor.close()
         conn.close()
 
+@app.errorhandler(405)
+def not_allowed(error=None):
+    return render_login()
+
 
 @app.errorhandler(404)
 def not_found(error=None):
@@ -168,15 +198,6 @@ def not_found(error=None):
     response = jsonify(message)
     response.status_code = 404
     return response
-
-
-
-
-
-
-
-
-
 
 
 def searchByName(name):
@@ -207,7 +228,6 @@ def searchByName(name):
         conn.close()
 
 
-
-
 if __name__ == '__main__':
-    app.run()
+    app.secret_key = 'secret'
+    app.run(debug=True)
