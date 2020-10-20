@@ -173,7 +173,7 @@
             if (clear == "clear") person.id = ""
             var url = 'http://127.0.0.1:5000/search'
             if (person.id > 0) {
-                url = 'http://127.0.0.1:5000/search/' + person.id
+                url = 'http://127.0.0.1:5000/search-name/' + person.id
             }
             function clearElement(element) {
                 element.innerHTML = `<tbody><tr>
@@ -202,7 +202,7 @@
                 if (personList.length) {
                     for (person of personList) {
                         let nivel_acesso = ""
-                        person.nivel_acesso == 2 ? nivel_acesso = "Admin" : nivel_acesso = "Usuário"
+                        person.nivel_acesso > 1 ? nivel_acesso = "Admin" : nivel_acesso = "Usuário"
                         let rowElement = createElement('tr', null)
                         let personElement = createElement('td', {
                             class: "pessoa",
@@ -258,13 +258,13 @@
                     "Accept": "application/json,long_format",
                     "Access-Control-Allow-Origin": "*"
                 },
-                type: "GET",
-                method: "GET",
+                type: "POST",
+                method: "POST",
                 url: url,
                 dataType: 'json',
                 traditional: true,
                 processData: false,
-                data: "",
+                data: JSON.stringify(person),
                 success: function (data) {
                     createListElement(data)
                 },

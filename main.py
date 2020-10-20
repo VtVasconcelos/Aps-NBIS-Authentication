@@ -17,6 +17,9 @@ def render_login(text=""):
 @app.route('/register')
 def render_register():
     return render_template("register.html")
+@app.route('/users')
+def render_users():
+    return render_template("users.html")
 
 # api
 @app.route('/add', methods=['GET', 'POST'])
@@ -120,6 +123,26 @@ def searchById(id):
         return not_found()
     finally:
         closeConnection(cursor, conn)
+@app.route('/search-name/<string:nome>',methods=['POST'])
+def searchByName(nome):
+    try:
+        sqlCommand = 'SELECT * from pessoa where nome=%s'
+        bindCommand = nome
+        cursor, conn = sqlCmd(sqlCommand, bindCommand)
+        rows = cursor.fetchone()
+        if(rows == None):
+            return not_found
+        response = jsonify(rows)
+        # with open("digital_busca.xyt", "w") as fxyt:
+        #    fxyt.write(rows['digital'])
+        # identify("digital_busca.xyt")
+        response.status_code = 200
+        return response
+    except:
+        return not_found()
+    finally:
+        closeConnection(cursor, conn)
+
 # ta errado essa porra
 @app.route('/update', methods=['PUT'])
 def update():
