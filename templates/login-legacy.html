@@ -5,18 +5,150 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
+<<<<<<< HEAD:templates/login-legacy.html
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+=======
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <style>
+        .image-preview-input input[type=file] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+            padding: 0;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0;
+            filter: alpha(opacity=0);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+        }
+
+        .input-group.image-preview {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            border: solid 1px #e3e3e3;
+box-shadow: 0px 0px 10px #d8d8d8;
+background-color: white;
+        }
+
+        .file-name {
+            display: flex;
+            flex-direction: row;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            margin: 10px 0px;
+        }
+
+        #nome {
+            font-size: 24px;
+            width: 100%;
+            border-color: white;
+            border-style: groove;
+            padding: 3px 10px;
+        }
+
+        .fas.fa-fingerprint {
+            margin-right: 10px;
+        }
+        body {
+    background: #f0f0f0;
+}
+        .input-group-btn {
+            display: flex;
+            justify-content: center;
+            height: 40px;
+        }
+
+        .input-group-btn .btn {
+            width: 120px;
+            height: 100%;
+            min-height: 40px;
+        }
+
+        #input-file {
+            display: none;
+        }
+
+        .image-preview-demiliter {
+            background-color: white!important;
+            width: 674px;
+            height: 280px;
+            -webkit-box-shadow: inset 0px 0px 117px -47px rgba(0, 0, 0, 1);
+            -moz-box-shadow: inset 0px 0px 117px -47px rgba(0, 0, 0, 1);
+            box-shadow: 0px 0px 12px 0px rgba(160, 160, 160, 0.5);
+            margin: 19px 0px;
+            background-position: center!important;
+            background-repeat: no-repeat!important;
+            background-size: contain!important;
+            
+        }
+#digital{
+    background: transparent;
+    border: none;
+}
+        #dynamic {
+            max-height: 231px;
+            margin: auto;
+            display: block;
+        }
+    </style>
+>>>>>>> 6b914d7e33067207832996edb83e33a4b1606698:templates/login.html
 </head>
 
 <body>
-    <form method="POST" action="http://127.0.0.1:5000/login">
-        <input type="text" name="nome" id="nome" placeholder="Nome de usuário">
-        <input type="file" name="digital" id="digital">
-        <div name="send" onclick="send()">Enviar</div>
-        <!-- <div class="send btn btn-primary" onclick="send()" style="font-size: 14px;">Login</div> -->
-    </form>
+
+    <div class="container">
+        <div class="row" style="justify-content: center;height: 100vh;">
+            <div class="" style="width: 674px;">
+
+                <form method="POST" action="http://127.0.0.1:5000/login">
+                    <h1 style="padding-bottom: 20px;">Fazer Login</h1>
+                    <input type="text" name="nome" id="nome" placeholder="Nome de usuário">
+                    <!-- image-preview-filename input [CUT FROM HERE]-->
+                    <div class="image-preview-demiliter"></div>
+                    <div class="input-group image-preview">
+                        <div class="file-name">
+                            <i class="fas fa-fingerprint"></i>
+                            <input type="text" class="image-preview-filename" disabled="disabled" name="digital"
+                                id="digital">
+                        </div>
+                        <span class="input-group-btn">
+                            <!-- image-preview-clear button -->
+
+                            <button type="button" class="btn btn-danger image-preview-clear">
+                                Limpar
+                            </button>
+
+                            <!-- image-preview-input -->
+                            <label class="image-preview-input" style="padding: 0px;margin:0px">
+                                <span for="input-file" class="image-preview-input-title btn btn-dark" style="margin-left: 10px;">Selecionar</span>
+                                <input type="file" accept="image/png, image/jpeg, image/gif" name="input-file"
+                                    id="input-file" />
+                                <!-- rename it -->
+                            </label>
+                        </span>
+                    </div>
+                    <div name="send" onclick="send()" class="btn btn-primary" style="margin-top: 10px;width: 100%;">
+                        Enviar</div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div>
         <div class="alert alert-danger toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="true"
             style="background-color: #f8d7da;
@@ -32,9 +164,80 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
     <script>
+<<<<<<< HEAD:templates/login-legacy.html
         function send(e){
             e != undefined ? e.preventDefault() : null
             $("#nome").val() && $("#digital").val() ? $('form').submit() : alert("Preenche todos os campos ai filho da puta preguiçoso do caralho") 
+=======
+        var message = $('.alert').innerHTML
+        $(document).on('click', '#close-preview', function () {
+            $('.image-preview').popover('hide');
+            // Hover befor close the preview
+            $('.image-preview').hover(
+                function () {
+                    $('.image-preview').popover('show');
+                },
+                function () {
+                    $('.image-preview').popover('hide');
+                }
+            );
+        });
+
+        $(function () {
+            $('.toast').toast({ delay: 4000 })
+            if(message){ 
+                $('.toast').toast('show')
+                }
+            
+            // Create the close button
+            var closebtn = $('<button/>', {
+                type: "button",
+                text: 'x',
+                id: 'close-preview',
+                style: 'font-size: initial;',
+            });
+            closebtn.attr("class", "close pull-right");
+            // Set the popover default content
+            $('.image-preview').popover({
+                trigger: 'manual',
+                html: true,
+                title: "<strong>Digital</strong>" + $(closebtn)[0].outerHTML,
+                content: "Sem imagem",
+                placement: 'bottom'
+            });
+            // Clear event
+            $('.image-preview-clear').click(function () {
+                $('.image-preview-filename').val("");
+                $('.image-preview-input input:file').val("");
+                $('.image-preview-demiliter').css("background-image","none")
+                $(".image-preview-input-title").text("Selecionar");
+            });
+            // Create the preview image
+            $(".image-preview-input input:file").change(function () {
+                var img = $('<img/>', {
+                    id: 'dynamic',
+                    width: 250,
+                    height: 200
+                });
+                var file = this.files[0];
+                var reader = new FileReader();
+                // Set preview image into the popover data-content
+                reader.onload = function (e) {
+                    console.log(e.target.result)
+                    $('.image-preview-demiliter').css("background","url('"+e.target.result+"')")
+                    //$(".image-preview-input-title").text("Selecionar");
+                    $(".image-preview-clear").show();
+                    $(".image-preview-filename").val(file.name);
+                    //img.attr('src', e.target.result);
+                    //$(".image-preview").attr("data-content", $(img)[0].outerHTML).popover("show");
+                }
+                reader.readAsDataURL(file);
+            });
+        });
+        function send(e) {
+            e != undefined ? e.preventDefault() : null
+            $("#nome").val() && $("#digital").val() ? $('form').submit() : alert("Preenche todos os campos ai filho da puta preguiçoso do caralho")
+>>>>>>> 6b914d7e33067207832996edb83e33a4b1606698:templates/login.html
         }
         $(window).on("load", function () {
             $('.toast').toast({ delay: 4000 })

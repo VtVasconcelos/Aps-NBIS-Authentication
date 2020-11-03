@@ -22,11 +22,16 @@
             width: fit-content;
             padding: 50px 0px;
             display: flex;
+            justify-content: center;
         }
 
         form input {
             padding: 0px 10px;
             margin-right: 10px;
+        }
+
+        form div {
+            margin: 0px !important;
         }
 
         h2 {
@@ -168,7 +173,7 @@
             if (clear == "clear") person.id = ""
             var url = 'http://127.0.0.1:5000/search'
             if (person.id > 0) {
-                url = 'http://127.0.0.1:5000/search/' + person.id
+                url = 'http://127.0.0.1:5000/search-name/' + person.id
             }
             function clearElement(element) {
                 element.innerHTML = `<tbody><tr>
@@ -197,7 +202,11 @@
                 if (personList.length) {
                     for (person of personList) {
                         let nivel_acesso = ""
+<<<<<<< HEAD
                         person.nivel_acesso == 2 ? nivel_acesso = "Agricultor" : nivel_acesso = "Usuário"
+=======
+                        person.nivel_acesso > 1 ? nivel_acesso = "Admin" : nivel_acesso = "Usuário"
+>>>>>>> 6b914d7e33067207832996edb83e33a4b1606698
                         let rowElement = createElement('tr', null)
                         let personElement = createElement('td', {
                             class: "pessoa",
@@ -253,13 +262,13 @@
                     "Accept": "application/json,long_format",
                     "Access-Control-Allow-Origin": "*"
                 },
-                type: "GET",
-                method: "GET",
+                type: "POST",
+                method: "POST",
                 url: url,
                 dataType: 'json',
                 traditional: true,
                 processData: false,
-                data: "",
+                data: JSON.stringify(person),
                 success: function (data) {
                     createListElement(data)
                 },
