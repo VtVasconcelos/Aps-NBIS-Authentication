@@ -17,10 +17,9 @@ def identify(fileName):
     return False
 
 def mindtct_from_image(image,path):
-    image_full_path = os.path.abspath(image)
     tempdir = tempfile.mkdtemp()
     oroot = os.path.join(tempdir, 'result')
-    callMindtct = "./library/mindtct "+ image_full_path +" "+ oroot
+    callMindtct = "./library/mindtct "+ image +" "+ oroot
     try:
         os.popen(callMindtct).read()
         result = ""

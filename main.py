@@ -3,25 +3,25 @@ from app import app
 import json
 from banco import mysql
 from flask import jsonify
-from flask import flash, redirect, request, render_template,has_request_context
+from flask import flash, redirect, request, render_template, has_request_context
 from nbis import identify
 from nbis import mindtct_from_image
-import flask_login
 
 
 @app.route('/')
-def render_login(text=""):
-    return render_template("login.html",message=text)
+def render_index(text=""):
+    return render_template("index.html", message=text)
+
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_pessoa():
-    try:
-        if request.method == 'POST':
+    if request.method == "POST":
+        try:
             _json = request.json
             _nome = _json['nome']
             _digital = _json['digital']
             _nivel_acesso = _json['nivel_acesso']
-            if(_nome and request.method == 'POST'):
+            if(_nome):
                 response_search = searchByName(_nome)
                 if(response_search.status_code == 404):
                     sqlQuery = 'insert into pessoa(nome,digital,nivel_acesso) values(%s,%s,%s)'
@@ -31,26 +31,25 @@ def add_pessoa():
                     cursor = conn.cursor()
                     cursor.execute(sqlQuery, bindData)
                     conn.commit()
-                    response = jsonify('Pessoa added')
+                    response = jsonify('Registrado com sucesso!')
                     response.status_code = 200
-                    return response
+                    return render_index('Registrado com sucesso!')
                 else:
                     response = jsonify('Nome já existe')
                     response.status_code = 404
-                    return response
+                    return render_index('Nome já existe')
             else:
                 return not_found()
-        else:
-            print(request)
-    except Exception as e:
-        print(e)
-    finally:
-        try:
-            cursor.close()
-            conn.close()
-        except Exception as ex:
-            print(ex)
-
+        except Exception as e:
+            print(e)
+        finally:
+            try:
+                cursor.close()
+                conn.close()
+            except Exception as ex:
+                print(ex)
+    else:
+        return redirect('/')
 
 @app.route('/search')
 def search():
@@ -68,37 +67,46 @@ def search():
         cursor.close()
         conn.close()
 
+
 @app.route('/register')
 def render_register():
-    return render_template("register.html")
-@app.route('/login', methods=['POST'])
+    return redirect("/")
+
+
+@app.route('/login', methods=['POST', 'GET'])
 def login():
-    try:
-        if(has_request_context()):
-            if(request.method == "POST" and request.form['nome'] and request.form['digital']):
-                _nome = request.form['nome']
-                _digital = "./fingers/"+request.form['digital']
-                conn = mysql.connect()
-                cursor = conn.cursor(pymysql.cursors.DictCursor)
-                cursor.execute('SELECT * from pessoa where nome=%s', _nome)
-                account = cursor.fetchone()
-                mindtct_from_image(account["digital"], "./banco/")
-                if identify(mindtct_from_image(_digital, "./")):
+    if request.method == "POST":
+        try:
+            if(has_request_context()):
+                if(request.method == "POST" and request.form['nome'] and request.form['digital']):
+                    _nome = request.form['nome']
+                    _digital = "./fingers/"+request.form['digital']
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    cursor.execute('SELECT * from pessoa where nome=%s', _nome)
+                    account = cursor.fetchone()
+                    mindtct_from_image(account["digital"], "./banco/")
+                    if identify(mindtct_from_image(_digital, "./")):
                         if(account['nivel_acesso'] < 3):
-                            return render_login('Boa filho de uma égua, agora se fode ai')
+                            response = getInfos(account['nivel_acesso'])
+                            return render_template("infos.html",infos=response.get_data(as_text=True))
                         else:
                             return render_template("users.html")
-                else:
-                    return render_login('Nome de usuário ou digital incorretos')
-    except:
-        return render_login('Nome de usuário ou digital incorretos!')
+                    else:
+                        return render_index('Nome de usuário ou digital incorretos')
+        except:
+            return render_index('Nome de usuário ou digital incorretos!')
+    else:
+        return redirect("/")
+
 
 @app.route('/get-info/<int:nivel_acesso>')
 def getInfos(nivel_acesso):
     try:
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute('SELECT * from info where nivel_acesso=%s',nivel_acesso)
+        cursor.execute(
+            'SELECT * from infos where nivel_acesso=%s order by id desc', nivel_acesso)
         rows = cursor.fetchall()
         response = jsonify(rows)
         response.status_code = 200
@@ -108,6 +116,7 @@ def getInfos(nivel_acesso):
     finally:
         cursor.close()
         conn.close()
+
 
 @app.route('/search/<int:id>')
 def searchById(id):
@@ -184,20 +193,15 @@ def delete(id):
         cursor.close()
         conn.close()
 
+
 @app.errorhandler(405)
 def not_allowed(error=None):
-    return render_login()
+    return render_index()
 
 
 @app.errorhandler(404)
 def not_found(error=None):
-    message = {
-        'status': 404,
-        'message': "Not found" + request.url
-    }
-    response = jsonify(message)
-    response.status_code = 404
-    return response
+    return render_template('404.html')
 
 
 def searchByName(name):
@@ -215,9 +219,6 @@ def searchByName(name):
             response.status_code = 404
             return response
         response = jsonify(rows)
-        # with open("digital_busca.xyt", "w") as fxyt:
-        #    fxyt.write(rows['digital'])
-        # identify("digital_busca.xyt")
         response.status_code = 200
         return response
     except Exception as e:
@@ -229,5 +230,4 @@ def searchByName(name):
 
 
 if __name__ == '__main__':
-    app.secret_key = 'secret'
     app.run(debug=True)

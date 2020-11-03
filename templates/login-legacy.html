@@ -5,77 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
-    <style>
-        * {
-            padding: 0px;
-            margin: 0px;
-            list-style: none;
-            box-sizing: content-box;
-        }
 
-        .\32 {
-            color: red;
-        }
-
-        form {
-            margin: auto;
-            width: fit-content;
-            padding: 50px 0px;
-            display: flex;
-        }
-
-        form input {
-            padding: 0px 10px;
-            margin-right: 10px;
-        }
-
-        h2 {
-            text-align: center;
-        }
-
-        .send {
-            display: inline-block;
-            margin: auto;
-        }
-
-        table {
-            margin: auto;
-            width: 400px;
-            margin-top: 25px;
-        }
-
-        form.register {
-            flex-direction: column;
-        }
-
-        form.register input {
-            margin: 10px 0px;
-        }
-
-        table i:first-child {}
-
-        table tr {
-            line-height: 30px;
-        }
-
-        body {
-            background: #f8f8f8 !important;
-        }
-
-        table td {
-            padding: 0px 35px;
-        }
-
-        table tr {
-            border: solid 1px #e4e4e4 !important;
-            border: solid 1px black;
-            background: white !important;
-        }
-
-        tbody tr {
-            background: transparent !important;
-        }
-    </style>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 </head>
@@ -106,33 +36,6 @@
             e != undefined ? e.preventDefault() : null
             $("#nome").val() && $("#digital").val() ? $('form').submit() : alert("Preenche todos os campos ai filho da puta preguiçoso do caralho") 
         }
-        /*function send() {
-            var person = {
-                nome: $("#nome").val(),
-                digital: $("#digital").val().replace("C:\\fakepath\\", "./fingers/"),
-            }
-            url = 'http://127.0.0.1:5000/login'
-
-            $.ajax({
-                headers: {
-                    "Access-Control-Allow-Origin": "http://127.0.0.1:5000/login",
-                    "Content-type": "application/json",
-                    "Cache-Control": "no-cache",
-                    "Accept": "application/json,long_format"
-                },
-                type: "POST",
-                method: "POST",
-                url: url,
-                traditional: true,
-                processData: false,
-                data: JSON.stringify(person),
-                success: function (data) {
-                },
-                error: function (data) {
-                    $('.toast').toast('show');
-                }
-            });
-        }*/
         $(window).on("load", function () {
             $('.toast').toast({ delay: 4000 })
             {% if message %}
