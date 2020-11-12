@@ -1,2 +1,1 @@
-# Aps-NBIS-Authentication
-ADO ADDO QUEM NAO CONSEGUIR RODAR É VIADO
+
